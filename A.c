@@ -37,6 +37,7 @@ size_t toLowerCase(char **source, size_t n, char **test) {
   for(int i = 0; i < n; i++){
     test[i] = dest[i];
   }
+  free(dest);
   return n;
 }
 
@@ -77,31 +78,28 @@ int main() {
     if (!fl2)
       break;
   }
-  n = i;
+  n = i + 1;
 
   char **dest = (char **) calloc(sizeof(char *), n);
 
 
 
 
-  //toLowerCase(s, n, dest);
+  toLowerCase(s, n, dest);
 
 
-  for (i = 0; i <= n; i++) {
-    printf("%s", s[i]);
+  for (i = 0; i < n; i++) {
+    printf("%s", dest[i]);
   }
 
-/*
 
   for (i = 0; i < n; i++) {
     free(s[i]);
     free(dest[i]);
   }
-  free(s[n]);
-
   free(s);
   free(dest);
-*/
+
 
   return 0;
 }
