@@ -36,7 +36,7 @@ size_t toLowerCase(char **source, size_t n, char ***test) {
 int main() {
   size_t n = 0, k = 0, l = 0;
   char *fl2;
-  int fl = 0;
+  int fl = 0, err = 0;
   char **s = NULL;
   size_t i = 0;
   for (; ; i++) {
@@ -77,8 +77,14 @@ int main() {
 
 
 
-  toLowerCase(s, n, &dest);
+  size_t K = toLowerCase(s, n, &dest);
+  if(!K)
+    err = 1;
 
+  if(err){
+    printf("[error]");
+    return 0;
+  }
 
   for (i = 0; i < n; i++) {
     printf("%s", dest[i]);
