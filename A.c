@@ -2,18 +2,15 @@
 #include <string.h>
 #include <stdlib.h>
 
-#define DIFF 32
-#define L_UPPER 65
-#define R_UPPER 90
-#define EXT_BUFF_SIZE 51
-#define BUFF_SIZE (EXT_BUFF_SIZE - 1)
+#define EXT_BUFF_SIZE 51                  // Размер буффера, в который читает gets
+#define BUFF_SIZE (EXT_BUFF_SIZE - 1)     // Размер буффера без \n или \0
 
 //LowerCase : 97..122
 //UpperCase : 65.. 90
 // \0       : 0
 // \n       : 10
 
-size_t toLowerCase(char **source, size_t n, char **test) {
+size_t toLowerCase(char **source, size_t n, char ***test) {
   char **dest = (char **) calloc(sizeof(char *), n);
   for (int j = 0; j < n; j++) {
     size_t l = EXT_BUFF_SIZE;
@@ -27,17 +24,12 @@ size_t toLowerCase(char **source, size_t n, char **test) {
         dest[j] = (char*) realloc(dest[j], l * sizeof(char));
       }
 
-      dest[j][i] = (char) (str[i] >= L_UPPER && str[i] <= R_UPPER ? str[i] + DIFF : str[i]);
-      //printf("%c ", c);
+      dest[j][i] = (char) (str[i] >= 'A' && str[i] <= 'Z' ? str[i] - 'A' + 'a' : str[i]);
       i++;
     }
     dest[j][i] = str[i];
-    //printf("%s", buff);
   }
-  for(int i = 0; i < n; i++){
-    test[i] = dest[i];
-  }
-  free(dest);
+  *test = dest;
   return n;
 }
 
@@ -80,12 +72,12 @@ int main() {
   }
   n = i + 1;
 
-  char **dest = (char **) calloc(sizeof(char *), n);
+  char **dest = NULL;
 
 
 
 
-  toLowerCase(s, n, dest);
+  toLowerCase(s, n, &dest);
 
 
   for (i = 0; i < n; i++) {
