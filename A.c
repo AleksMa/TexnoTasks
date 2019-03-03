@@ -12,14 +12,14 @@
 
 
 // Print n strings from array source
-void print_str(char **source, size_t n){
+void print_str(char **source, size_t n) {
   for (size_t i = 0; i < n; i++) {
     printf("%s", source[i]);
   }
 }
 
 // Free source array of n items dynamic memory
-void mem_free(char **s, size_t n){
+void mem_free(char **s, size_t n) {
   for (size_t i = 0; i < n; i++) {
     free(s[i]);
   }
@@ -30,13 +30,13 @@ void mem_free(char **s, size_t n){
 // Return 0 for memory errors  (n > 0)
 size_t to_lower_case(char **source, size_t n, char ***test) {
   char **dest = (char **) calloc(sizeof(char *), n);
-  if(!dest)
+  if (!dest)
     return 0;
 
   for (size_t j = 0; j < n; j++) {
     size_t l = EXT_BUFF_SIZE;
     dest[j] = calloc(sizeof(char), EXT_BUFF_SIZE);
-    if(!dest[j]){
+    if (!dest[j]) {
       mem_free(dest, j);
       return 0;
     }
@@ -47,7 +47,7 @@ size_t to_lower_case(char **source, size_t n, char ***test) {
       if (i + 2 >= l) {
         l *= 2;
         char *t = (char *) realloc(dest[j], l * sizeof(char));
-        if(!t){
+        if (!t) {
           mem_free(dest, j + 1);
           return 0;
         }
@@ -64,24 +64,24 @@ size_t to_lower_case(char **source, size_t n, char ***test) {
 }
 
 // Read all strings to dest array until get EOF
-long read_strings(char ***dest){
+long read_strings(char ***dest) {
   char **s = NULL;
   char *fl2;
   size_t k = 0, l = 0, i = 0;
   int fl = 0;
-  for (; ; i++) {
+  for (;; i++) {
     fl = 0;
     k = 0;
     l = 1;
     char **t = (char **) realloc(s, (i + 1) * sizeof(char *));
-    if(!t){
-      if(i > 0)
+    if (!t) {
+      if (i > 0)
         mem_free(s, i);
       return -1;
     }
     s = t;
     char *temp = (char *) calloc(sizeof(char), EXT_BUFF_SIZE);
-    if(!temp){
+    if (!temp) {
       mem_free(s, i + 1);
       return -1;
     }
@@ -101,7 +101,7 @@ long read_strings(char ***dest){
         l *= 2;
         k++;
         char *buff = (char *) realloc(temp, (l * EXT_BUFF_SIZE) * sizeof(char));
-        if(buff){
+        if (buff) {
           temp = buff;
         } else {
           free(temp);
@@ -113,7 +113,7 @@ long read_strings(char ***dest){
     if (!fl2)
       break;
   }
-  if(!i && s[i][0] == '\0'){
+  if (!i && s[i][0] == '\0') {
     mem_free(s, i + 1);
     return 0;
   }
