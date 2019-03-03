@@ -64,6 +64,7 @@ size_t to_lower_case(char **source, size_t n, char ***test) {
 }
 
 // Read all strings to dest array until get EOF
+// Return 0 for no input data and -1 for memory errors
 long read_strings(char ***dest) {
   char **s = NULL;
   char *fl2;
