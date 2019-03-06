@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <memory.h>
 
 #define EXT_BUFF_SIZE 51                  // Size of input buffer
 #define BUFF_SIZE (EXT_BUFF_SIZE - 1)     // Buffer size without \n or \0
@@ -106,12 +107,19 @@ long read_strings(char ***dest) {
       fl2 = fgets(&temp[BUFF_SIZE * k], EXT_BUFF_SIZE, stdin);
       if (!fl2)                                                 // Get EOF
         break;
+      /*
       for (int j = 0; j < BUFF_SIZE; j++) {
         if (temp[BUFF_SIZE * k + j] == '\n') {
           fl = 1;
           break;
         }
       }
+       */
+
+      size_t j = strlen(&temp[BUFF_SIZE * k]);
+      printf("%ld\n", j);
+      if(temp[BUFF_SIZE * k + j - 1] == '\n')
+        fl = 1;
       if (fl) {                                                 // Get '\n'
         break;
       } else {
