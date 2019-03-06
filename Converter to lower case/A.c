@@ -8,7 +8,7 @@
 #define BUFF_SIZE (EXT_BUFF_SIZE - 1)     // Buffer size without \n or \0
 #define ALLOC_COUNT 10
 #define ERR "[error]"
-#define MEM_ERROR 0
+#define ERROR 0
 
 /*
  * Мамаев Алексей АПО-12
@@ -81,17 +81,17 @@ void mem_free(char **s, size_t n) {
 // Return 0 for memory errors  (n > 0)
 size_t to_lower_case(char **source, size_t n, char ***dest) {
   if(!source || !dest || !n){
-    return 0;
+    return ERROR;
   }
   char **temp = (char **) calloc(sizeof(char *), n);
   if (!temp)
-    return 0;
+    return ERROR;
   for (size_t i = 0; i < n; i++) {
     size_t l = strlen(source[i]);
     temp[i] = calloc(sizeof(char), l + 1);   // + 1 for '\0'
     if (!temp[i]) {
       mem_free(temp, i);
-      return 0;
+      return ERROR;
     }
     char *str = source[i];
     for (size_t j = 0; j <= l; j++)
@@ -105,7 +105,7 @@ size_t to_lower_case(char **source, size_t n, char ***dest) {
 // Return 0 for no input data and -1 for memory errors
 char** read_strings(size_t *k) {
   if(!k)
-    return 0;
+    return ERROR;
   char **s = NULL;
   char *flag_buffer;
   size_t i = 0;
@@ -115,19 +115,19 @@ char** read_strings(size_t *k) {
     if (!t) {
       if (i > 0)
         mem_free(s, i);
-      return MEM_ERROR;
+      return ERROR;
     }
     s = t;
     char *temp = (char *) calloc(sizeof(char), EXT_BUFF_SIZE);
     if (!temp) {
       mem_free(s, i + 1);
-      return MEM_ERROR;
+      return ERROR;
     }
     while (1) {
       flag_buffer = fgets(&temp[BUFF_SIZE * k], EXT_BUFF_SIZE, stdin);
       if (!flag_buffer) {
         if(ferror(stdin))
-          return 0;
+          return ERROR;
         break;                                                  // Get EOF
       }
 
@@ -142,7 +142,7 @@ char** read_strings(size_t *k) {
         if (!buff) {
           free(temp);
           mem_free(s, i + 1);
-          return MEM_ERROR;
+          return ERROR;
         }
         temp = buff;
       }
@@ -153,7 +153,7 @@ char** read_strings(size_t *k) {
   }
   if (!i && s[i][0] == '\0') {
     mem_free(s, i + 1);
-    return 0;
+    return ERROR;
   }
   *k = i + 1;
   return s;
