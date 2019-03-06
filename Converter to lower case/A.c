@@ -1,5 +1,3 @@
-
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <memory.h>
@@ -22,7 +20,6 @@
  * Программа должна уметь обрабатывать ошибки - такие как неверные входные данные(отсутствие входных строк) или ошибки выделения памяти и т.п.
  * В случае возникновения ошибки нужно выводить об этом сообщение "[error]" и завершать выполнение программы.
  */
-
 
 /*
 TODO:
@@ -47,9 +44,6 @@ TODO:
         }
 [DONE] 7.  to_lower_case - зачем логика перевыделения памяти (умножение на 2), если есть возможность посчитать размер строки?
 [DONE] 8. исправьте сообщения cppcheck'a
-
-
-
 */
 
 
@@ -57,6 +51,7 @@ TODO:
 //Upper Case : 65.. 90
 // \0       : 0
 // \n       : 10
+
 
 // Print n strings from array source
 void print_str(char **source, size_t n) {
@@ -133,6 +128,7 @@ char **read_strings(size_t *n) {
         mem_free(s, buff_size);
         return ERROR;
       }
+      s = t;
       for (size_t j = buff_size; j < 2 * buff_size; j++) {
         s[j] = (char *) calloc(sizeof(char), EXT_BUFF_SIZE);
         if (!s[j]) {
@@ -141,7 +137,6 @@ char **read_strings(size_t *n) {
         }
       }
       buff_size *= 2;
-      s = t;
     }
 
     size_t k = 0, l = 1;                  // k - counter of input blocks in s[i], l - coefficient of reallocation
