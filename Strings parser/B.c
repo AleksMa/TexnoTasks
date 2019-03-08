@@ -34,22 +34,85 @@
 /*
  * Grammar
 
- * Expr         ::=   Term Expr' .
- * Expr'        ::= + Term Expr'    | .
- * Term         ::=   Line NumTerm  | Num LineTerm .
- * NumTerm      ::= * Num  NumTerm  | .
- * LineTerm     ::= * Line NumTerm    .
+ * Expr         ::=   Term InnerExpr .
+ * InnerExpr    ::= + Term InnerExpr  | .
+ * Term         ::=   Line NumTerm    | Num LineTerm .
+ * NumTerm      ::= * Num  NumTerm    | .
+ * LineTerm     ::= * Line NumTerm   .
  * Num          ::=   Digit DigitTail .
- * Digit        ::=   0 | 1 | ... | 9 .
- * DigitTail    ::=   Digit | .
+ * Digit        ::=   0 | 1  | ... | 9 .
+ * DigitTail    ::=   Digit  | .
  * Line         ::=   String | '(' Expr ')' .
  * String       ::=   " StringTail " .
  * StringTail   ::=   <any_char> StringTail | .
  *
  */
 
+// Classical top-down parsing with accumulator string
 
+int expr();
+int inner_expr();
+int term();
+int num_term();
+int line_term();
+int line();
 
+char **lexemes, **instruction_pointer;
+char *accumulator, *buff;
+
+int expr() {
+  term();
+  inner_expr();
+}
+
+int inner_expr() {
+  if (**instruction_pointer != '+' && **instruction_pointer != 0 && **instruction_pointer != ')' && **instruction_pointer != 0)
+    return 0;
+  if  (**instruction_pointer == '+'){
+    term();
+    inner_expr();
+  }
+}
+
+int term() {
+  if (**instruction_pointer == '\"' || **instruction_pointer == '('){
+    line();
+    num_term();
+  }
+  else if (isdigit(**instruction_pointer)){
+    //num();
+    line_term();
+  }
+  else
+    return 0;
+}
+
+int num_term() {
+  if (**instruction_pointer == '*'){
+    //num();
+    num_term();
+  }
+  else if(**instruction_pointer != ')' && **instruction_pointer != '+' && **instruction_pointer != 0 && **instruction_pointer != '\n')
+    return 0;
+}
+
+int line_term() {
+  line();
+  num_term();
+}
+
+int line() {
+  if(**instruction_pointer == '\"'){
+    //string
+  }
+  else if (**instruction_pointer == '('){
+    expr();
+    if (**instruction_pointer != ')'){
+      return 0;
+    }
+    instruction_pointer++;
+  }
+}
 
 char *read_string() {
   size_t k = 0, l = 1, len = 0;
@@ -96,10 +159,10 @@ char **lexer(char *source, size_t *n) {
   size_t len = strlen(source), i = 0;
 
   while (*buff != 0 && *buff != '\n') {
-    if(i >= k - 1){
+    if (i >= k - 1) {
       k *= 2;
       char **temp = (char **) realloc(lexemes, sizeof(char *) * k);
-      if(!temp){
+      if (!temp) {
         free(lexemes);
         return ERROR;
       }
@@ -110,23 +173,20 @@ char **lexer(char *source, size_t *n) {
       lexemes[i] = buff++;
       while (isdigit(*buff)) { buff++; }
       lexemes[++i] = buff;
-    }
-    else if (*buff == '\"'){
+    } else if (*buff == '\"') {
       lexemes[i] = buff++;
       while (*buff != '\"') { buff++; }
       lexemes[++i] = ++buff;
-    }
-    else if (*buff == '+' || *buff == '*' || '(' || ')'){
+    } else if (*buff == '+' || *buff == '*' || *buff == '(' || *buff == ')') {
       lexemes[i] = buff++;
       lexemes[++i] = buff;
-    }
-    else
+    } else
       return ERROR;
   }
 
   char *b = lexemes[0];
   for (size_t j = 0; j < i; j++) {
-    while(*b != 0 && *b != '\n' && b < lexemes[j + 1])
+    while (*b != 0 && *b != '\n' && b < lexemes[j + 1])
       printf("%c", *b++);
     printf("\n");
   }
@@ -167,11 +227,16 @@ int main() {
     ERR_ACTION
   }
 
-  char **lexemes = lexer(input_buff, &n);
-  if(!lexemes){
+  lexemes = lexer(input_buff, &n);
+  if (!lexemes) {
     free(input_buff);
     ERR_ACTION
   }
+
+  instruction_pointer = lexemes;
+  accumulator = (char *) calloc(sizeof(char), EXT_BUFF_SIZE);
+
+  res = expr();
 
   printf("%s", input_buff);
 
