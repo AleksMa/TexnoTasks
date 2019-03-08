@@ -57,6 +57,10 @@ int num_term();
 int line_term();
 int line();
 
+/*
+ *  TODO: ВОЗВРАЩАТЬ В ФУНКЦИЯХ СТРОКИ И ДАЛЕЕ ИХ КОНКАТЕНИРОВАТЬ.
+ */
+
 char **lexemes, **instruction_pointer;
 char *accumulator, *buff;
 
@@ -66,33 +70,32 @@ int expr() {
 }
 
 int inner_expr() {
-  if (**instruction_pointer != '+' && **instruction_pointer != 0 && **instruction_pointer != ')' && **instruction_pointer != 0)
+  if (**instruction_pointer != '+' && **instruction_pointer != 0 && **instruction_pointer != ')'
+      && **instruction_pointer != 0)
     return 0;
-  if  (**instruction_pointer == '+'){
+  if (**instruction_pointer == '+') {
     term();
     inner_expr();
   }
 }
 
 int term() {
-  if (**instruction_pointer == '\"' || **instruction_pointer == '('){
+  if (**instruction_pointer == '\"' || **instruction_pointer == '(') {
     line();
     num_term();
-  }
-  else if (isdigit(**instruction_pointer)){
+  } else if (isdigit(**instruction_pointer)) {
     //num();
     line_term();
-  }
-  else
+  } else
     return 0;
 }
 
 int num_term() {
-  if (**instruction_pointer == '*'){
+  if (**instruction_pointer == '*') {
     //num();
     num_term();
-  }
-  else if(**instruction_pointer != ')' && **instruction_pointer != '+' && **instruction_pointer != 0 && **instruction_pointer != '\n')
+  } else if (**instruction_pointer != ')' && **instruction_pointer != '+' && **instruction_pointer != 0
+      && **instruction_pointer != '\n')
     return 0;
 }
 
@@ -102,12 +105,12 @@ int line_term() {
 }
 
 int line() {
-  if(**instruction_pointer == '\"'){
+  if (**instruction_pointer == '\"') {
     //string
-  }
-  else if (**instruction_pointer == '('){
+  } else if (**instruction_pointer == '(') {
+    instruction_pointer++;
     expr();
-    if (**instruction_pointer != ')'){
+    if (**instruction_pointer != ')') {
       return 0;
     }
     instruction_pointer++;
