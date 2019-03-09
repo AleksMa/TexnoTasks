@@ -21,7 +21,7 @@ typedef int bool;
  *
  * Run ID =
  *
- * ИЗ2
+ * ИЗ-2
  *
  * Разработайте программу-калькулятор, умеющую вычислять арифметические выражения над строками.
  * На стандартный поток ввода программы подается входное выражение, а результат вычислений программа должна вывести на стандартный поток вывода.
@@ -39,7 +39,7 @@ typedef int bool;
 
 
 /*
- * Grammar
+ * Grammar (BNF)
 
  * Expr         ::=   Term InnerExpr .
  * InnerExpr    ::= + Term InnerExpr  | .
@@ -56,31 +56,31 @@ typedef int bool;
  */
 
 // Classic top-down parsing with accumulator strings
+// Each function for each expression in BNF (except number, digits, strings)
 
-char *parser    ();
-char *expr      ();
+char *parser();
+char *expr();
 char *inner_expr();
-char *term      ();
-int num_term    ();
-char *line_term ();
-char *line      ();
+char *term();
+long num_term();
+char *line_term();
+char *line();
 
-char **lexemes, **instruction_pointer;
+char **lexemes, **instruction_pointer;      // Array of lexemes and pointer for this array
 
-char *parser(){
+char *parser() {
   instruction_pointer = lexemes;
   char *result = expr();
-  if(!result)
+  if (!result)
     return ERROR;
 
   size_t len = strlen(result);
   char *parsed = calloc(sizeof(char), len + 3);
 
-  if(!parsed){
+  if (!parsed) {
     free(result);
     return ERROR;
   }
-
 
   parsed[0] = '\"';
   strcpy(parsed + 1, result);
@@ -94,10 +94,10 @@ char *expr() {
   char *res = term();
   char *next = inner_expr();
 
-  if(!res || !next){
-    if(res)
+  if (!res || !next) {
+    if (res)
       free(res);
-    if(next)
+    if (next)
       free(next);
     return ERROR;
   }
@@ -109,7 +109,7 @@ char *expr() {
 
   size_t res_len = strlen(res), next_len = strlen(next);
   char *temp = realloc(res, (res_len + next_len + 1) * sizeof(char));
-  if(!temp) {
+  if (!temp) {
     free(res);
     free(next);
     return ERROR;
@@ -130,10 +130,10 @@ char *inner_expr() {
     char *res = term();
     char *next = inner_expr();
 
-    if(!res || !next){
-      if(res)
+    if (!res || !next) {
+      if (res)
         free(res);
-      if(next)
+      if (next)
         free(next);
       return ERROR;
     }
@@ -145,7 +145,7 @@ char *inner_expr() {
 
     size_t res_len = strlen(res), next_len = strlen(next);
     char *temp = realloc(res, (res_len + next_len + 1) * sizeof(char));
-    if(!temp) {
+    if (!temp) {
       free(res);
       free(next);
       return ERROR;
@@ -155,11 +155,9 @@ char *inner_expr() {
     free(next);
 
     return res;
-
-    // TODO: REMOVE DOUBLE CODE
   }
   char *empty = calloc(sizeof(char), 1);
-  if(!empty)
+  if (!empty)
     return ERROR;
   empty[0] = 0;
   return empty;
@@ -169,48 +167,48 @@ char *inner_expr() {
 char *term() {
   if (**instruction_pointer == '\"' || **instruction_pointer == '(') {
     char *res = line();
-    if(!res)
+    if (!res)
       return ERROR;
 
     char buff[strlen(res) + 1];
     strcpy(buff, res);
-    int k = num_term();
-    if(k == INT_ERROR){
+    long k = num_term();
+    if (k == INT_ERROR) {
       free(res);
       return ERROR;
     }
-    if(k == 0){
+    if (k == 0) {
       free(res);
       char *empty = calloc(sizeof(char), 1);
-      if(!empty)
+      if (!empty)
         return ERROR;
       empty[0] = 0;
       return empty;
     }
     char *temp = realloc(res, (k * strlen(res) + 1) * sizeof(char));
-    if(!temp){
+    if (!temp) {
       free(res);
       return ERROR;
     }
     res = temp;
 
-    for (int i = 1; i < k; i++) {
+    for (long i = 1; i < k; i++) {
       strcat(res, buff);
     }
     return res;
 
   } else if (isdigit(**instruction_pointer)) {
-    int k = (int) strtol(*instruction_pointer, instruction_pointer + 1, 10);
+    long k = strtol(*instruction_pointer, instruction_pointer + 1, 10);
     instruction_pointer++;
 
     char *res = line_term();
-    if(!res)
+    if (!res)
       return ERROR;
 
-    if(k == 0){
+    if (k == 0) {
       free(res);
       char *empty = calloc(sizeof(char), 1);
-      if(!empty)
+      if (!empty)
         return ERROR;
       empty[0] = 0;
       return empty;
@@ -220,7 +218,7 @@ char *term() {
     strcpy(buff, res);
 
     char *temp = realloc(res, (k * strlen(res) + 1) * sizeof(char));
-    if(!temp){
+    if (!temp) {
       free(res);
       return ERROR;
     }
@@ -234,20 +232,18 @@ char *term() {
     return 0;
 }
 
-int num_term() {
+long num_term() {
   if (**instruction_pointer == '*') {
     instruction_pointer++;
 
     if (!isdigit(**instruction_pointer))
       return INT_ERROR;
 
-    //TODO: int - > long
-
     int res = (int) strtol(*instruction_pointer, instruction_pointer + 1, 10);
     instruction_pointer++;
 
-    int num = num_term();
-    if(num == INT_ERROR)
+    long num = num_term();
+    if (num == INT_ERROR)
       return INT_ERROR;
     res *= num;
     return res;
@@ -262,26 +258,26 @@ char *line_term() {
     instruction_pointer++;
 
     char *res = line();
-    if(!res)
+    if (!res)
       return ERROR;
 
     char buff[strlen(res) + 1];
     strcpy(buff, res);
-    int k = num_term();
-    if(k == INT_ERROR)
+    long k = num_term();
+    if (k == INT_ERROR)
       return ERROR;
 
-    if(k == 0){
+    if (k == 0) {
       free(res);
       char *empty = calloc(sizeof(char), 1);
-      if(!empty)
+      if (!empty)
         return ERROR;
       empty[0] = 0;
       return empty;
     }
 
     char *temp = realloc(res, (k * strlen(res) + 1) * sizeof(char));
-    if(!temp){
+    if (!temp) {
       free(res);
       return ERROR;
     }
@@ -299,17 +295,16 @@ char *line() {
   if (**instruction_pointer == '\"') {
     size_t len = (*(instruction_pointer + 1) - *instruction_pointer);
     char *res = (char *) calloc(sizeof(char), len - 1);
-    if(!res)
+    if (!res)
       return ERROR;
 
     memcpy(res, *instruction_pointer++ + 1, len - 2);
     return res;
-  }
-  else if (**instruction_pointer == '(') {
+  } else if (**instruction_pointer == '(') {
     instruction_pointer++;
 
     char *res = expr();
-    if(!res)
+    if (!res)
       return ERROR;
 
     if (**instruction_pointer != ')') {
@@ -322,6 +317,8 @@ char *line() {
   return ERROR;
 }
 
+
+// Make array of lexemes (pointers to input string)
 char **lexer(char *source, size_t *n) {
   if (!source || !n)
     return ERROR;
@@ -351,13 +348,21 @@ char **lexer(char *source, size_t *n) {
       lexemes[++i] = pointer;
     } else if (*pointer == '\"') {
       lexemes[i] = pointer++;
-      while (*pointer != '\"')  { pointer++; }
+      while (*pointer != '\"') {
+        if (*pointer == 0) {
+          free(lexemes);
+          return ERROR;
+        }
+        pointer++;
+      }
       lexemes[++i] = ++pointer;
     } else if (*pointer == '+' || *pointer == '*' || *pointer == '(' || *pointer == ')') {
       lexemes[i] = pointer++;
       lexemes[++i] = pointer;
-    } else
+    } else {
+      free(lexemes);
       return ERROR;
+    }
   }
 
   /*
@@ -372,6 +377,7 @@ char **lexer(char *source, size_t *n) {
   return lexemes;
 }
 
+// Read input expression
 char *read_string() {
   size_t k = 0, l = 1, len = 0;
   char *input_buff = (char *) calloc(sizeof(char), EXT_BUFF_SIZE), *flag_buff = NULL;
@@ -382,7 +388,7 @@ char *read_string() {
     flag_buff = fgets(&input_buff[BUFF_SIZE * k], EXT_BUFF_SIZE, stdin);
 
     if (!flag_buff) {
-      if (ferror(stdin)){
+      if (ferror(stdin)) {
         free(input_buff);
         return ERROR;
       }
@@ -390,7 +396,7 @@ char *read_string() {
     }
 
     k++;
-    if(k >= l - 1){
+    if (k >= l - 1) {
       l *= 2;
       char *buff = (char *) realloc(input_buff, (BUFF_SIZE * l + 1) * sizeof(char));
       if (!buff) {
@@ -412,6 +418,7 @@ char *read_string() {
 
 }
 
+// Remove all spaces in expression (except inside strings)
 int remove_outer_spaces(char *input_buff) {
   if (!input_buff) {
     return ERROR;
@@ -457,7 +464,7 @@ int main() {
   }
 
   result = parser();
-  if(!result){
+  if (!result) {
     free(input_buff);
     free(lexemes);
     ERR_ACTION
