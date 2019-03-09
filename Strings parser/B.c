@@ -19,7 +19,7 @@ typedef int bool;
 /*
  * Мамаев Алексей АПО-12
  *
- * Run ID =
+ * Run ID = 888
  *
  * ИЗ-2
  *
