@@ -19,7 +19,7 @@ typedef int bool;
 /*
  * Мамаев Алексей АПО-12
  *
- * Run ID = 888
+ * Run ID = 890
  *
  * ИЗ-2
  *
@@ -412,7 +412,12 @@ char *read_string() {
   if (input_buff[len - 1] == '\n')
     input_buff[len-- - 1] = 0;
 
-  input_buff = realloc(input_buff, len + 1);
+  char *temp = realloc(input_buff, len + 1);
+  if(!temp){
+    free(input_buff);
+    return ERROR;
+  }
+  input_buff = temp;
 
   return input_buff;
 
